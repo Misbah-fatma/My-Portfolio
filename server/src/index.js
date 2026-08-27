@@ -28,20 +28,7 @@ async function seedIfEmpty() {
 
 async function boot() {
   const app = express();
-  const origins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-
-  app.use(
-    cors({
-      origin(origin, callback) {
-        if (!origin || origins.includes(origin)) return callback(null, true);
-        callback(new Error("Not allowed by CORS"));
-      },
-      credentials: true,
-    })
-  );
+  app.use(cors({ origin: true, credentials: true }));
   app.use(express.json({ limit: "32kb" }));
 
   try {
