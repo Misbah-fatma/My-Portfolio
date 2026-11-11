@@ -1,40 +1,57 @@
+import { useState } from "react";
 import InView from "../components/InView.jsx";
 
 export default function Skills({ skills }) {
-  const groups = (skills || [])
-    .filter((group) => group.group !== "Other")
-    .slice(0, 6);
-  const total = groups.reduce((sum, group) => sum + (group.items?.length || 0), 0);
+  const groups = (skills || []).filter((g) => g.group !== "Other").slice(0, 6);
+  const [active, setActive] = useState(0);
+  const current = groups[active] || groups[0];
+  const total = groups.reduce((n, g) => n + g.items.length, 0);
 
   return (
     <section className="section" id="skills">
-      <div className="section-head">
-        <div>
-          <p className="index">03 — Stack</p>
-          <h2 className="section-title">The tools I<br />reach for daily.</h2>
-        </div>
-        <p className="eyebrow" style={{ margin: 0 }}>
-          {String(total).padStart(2, "0")} tools · {String(groups.length).padStart(2, "0")} groups
-        </p>
-      </div>
       <InView>
-        <div className="skills-bento">
-          {groups.map((group, i) => (
-            <article className="skill-card" key={group.group}>
-              <header className="skill-card-head">
-                <span className="skill-idx">{String(i + 1).padStart(2, "0")}</span>
-                <div>
-                  <h3>{group.group}</h3>
-                  <p>{String(group.items.length).padStart(2, "0")} skills</p>
-                </div>
-              </header>
-              <ul>
-                {group.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
+        <div className="section-head">
+          <p className="section-label">toolbox</p>
+          <h2 className="section-title">What I <em>work with</em></h2>
+          <p className="label">{total} tools</p>
+        </div>
+      </InView>
+
+      <InView>
+        <div className="stack-ui">
+          <ul className="stack-tabs" role="tablist" aria-label="Skill groups">
+            {groups.map((g, i) => (
+              <li key={g.group}>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={i === active}
+                  className={i === active ? "on" : ""}
+                  onMouseEnter={() => setActive(i)}
+                  onFocus={() => setActive(i)}
+                  onClick={() => setActive(i)}
+                >
+                  <span className="label">{String(i + 1).padStart(2, "0")}</span>
+                  <strong>{g.group}</strong>
+                  <em>{String(g.items.length).padStart(2, "0")}</em>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div className="stack-panel" key={current?.group} role="tabpanel">
+            <span className="stack-ghost" aria-hidden="true">
+              {String(active + 1).padStart(2, "0")}
+            </span>
+            <p className="label">{current?.group}</p>
+            <ul>
+              {current?.items.map((item, i) => (
+                <li key={item} style={{ "--d": `${i * 45}ms` }}>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </InView>
     </section>

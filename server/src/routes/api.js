@@ -8,6 +8,8 @@ import { seedData } from "../data/seedData.js";
 import { sendContactEmail } from "../mail.js";
 
 const emailOk = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const QUERY_MS = 4000;
+const CACHE_MS = 120_000;
 
 function memoryStore() {
   return {
@@ -19,22 +21,73 @@ function memoryStore() {
   };
 }
 
-export function createApi({ useMemory, store }) {
+function memoryPayload(store) {
+  return {
+    profile: store.profile,
+    projects: [...store.projects].sort((a, b) => a.order - b.order),
+    skills: [...store.skills].sort((a, b) => a.order - b.order),
+    experience: [...store.experience].sort((a, b) => a.order - b.order),
+  };
+}
+
+async function loadPortfolio(runtime, store) {
+  if (runtime.cache && Date.now() - runtime.cacheAt < CACHE_MS) {
+    return runtime.cache;
+  }
+
+  if (runtime.useMemory) {
+    const data = memoryPayload(store);
+    runtime.cache = data;
+    runtime.cacheAt = Date.now();
+    return data;
+  }
+
+  try {
+    const [profile, projects, skills, experience] = await Promise.all([
+      Profile.findOne().lean().maxTimeMS(QUERY_MS),
+      Project.find().sort({ order: 1 }).lean().maxTimeMS(QUERY_MS),
+      Skill.find().sort({ order: 1 }).lean().maxTimeMS(QUERY_MS),
+      Experience.find().sort({ order: 1 }).lean().maxTimeMS(QUERY_MS),
+    ]);
+    const data = {
+      profile: profile || store.profile,
+      projects: projects.length ? projects : store.projects,
+      skills: skills.length ? skills : store.skills,
+      experience: experience.length ? experience : store.experience,
+    };
+    runtime.cache = data;
+    runtime.cacheAt = Date.now();
+    return data;
+  } catch (err) {
+    console.warn("Mongo read failed — serving seed:", err.message);
+    return memoryPayload(store);
+  }
+}
+
+export function createApi({ runtime, store }) {
   const router = express.Router();
 
   router.get("/health", (_req, res) => {
     res.json({
       ok: true,
-      mode: useMemory ? "memory" : "mongo",
+      mode: runtime.useMemory ? "memory" : "mongo",
+      cached: Boolean(runtime.cache),
       time: new Date().toISOString(),
     });
   });
 
+  router.get("/portfolio", async (_req, res, next) => {
+    try {
+      res.json(await loadPortfolio(runtime, store));
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.get("/profile", async (_req, res, next) => {
     try {
-      if (useMemory) return res.json(store.profile);
-      const doc = await Profile.findOne().lean();
-      res.json(doc || store.profile);
+      const data = await loadPortfolio(runtime, store);
+      res.json(data.profile);
     } catch (err) {
       next(err);
     }
@@ -42,11 +95,8 @@ export function createApi({ useMemory, store }) {
 
   router.get("/projects", async (_req, res, next) => {
     try {
-      if (useMemory) {
-        return res.json([...store.projects].sort((a, b) => a.order - b.order));
-      }
-      const docs = await Project.find().sort({ order: 1 }).lean();
-      res.json(docs.length ? docs : store.projects);
+      const data = await loadPortfolio(runtime, store);
+      res.json(data.projects);
     } catch (err) {
       next(err);
     }
@@ -54,14 +104,10 @@ export function createApi({ useMemory, store }) {
 
   router.get("/projects/:slug", async (req, res, next) => {
     try {
-      if (useMemory) {
-        const found = store.projects.find((p) => p.slug === req.params.slug);
-        if (!found) return res.status(404).json({ error: "Project not found" });
-        return res.json(found);
-      }
-      const doc = await Project.findOne({ slug: req.params.slug }).lean();
-      if (!doc) return res.status(404).json({ error: "Project not found" });
-      res.json(doc);
+      const data = await loadPortfolio(runtime, store);
+      const found = data.projects.find((p) => p.slug === req.params.slug);
+      if (!found) return res.status(404).json({ error: "Project not found" });
+      res.json(found);
     } catch (err) {
       next(err);
     }
@@ -69,11 +115,8 @@ export function createApi({ useMemory, store }) {
 
   router.get("/skills", async (_req, res, next) => {
     try {
-      if (useMemory) {
-        return res.json([...store.skills].sort((a, b) => a.order - b.order));
-      }
-      const docs = await Skill.find().sort({ order: 1 }).lean();
-      res.json(docs.length ? docs : store.skills);
+      const data = await loadPortfolio(runtime, store);
+      res.json(data.skills);
     } catch (err) {
       next(err);
     }
@@ -81,11 +124,8 @@ export function createApi({ useMemory, store }) {
 
   router.get("/experience", async (_req, res, next) => {
     try {
-      if (useMemory) {
-        return res.json([...store.experience].sort((a, b) => a.order - b.order));
-      }
-      const docs = await Experience.find().sort({ order: 1 }).lean();
-      res.json(docs.length ? docs : store.experience);
+      const data = await loadPortfolio(runtime, store);
+      res.json(data.experience);
     } catch (err) {
       next(err);
     }
@@ -112,7 +152,7 @@ export function createApi({ useMemory, store }) {
       const payload = { name, email, project, budget, message };
       let saved = null;
 
-      if (useMemory) {
+      if (runtime.useMemory) {
         saved = { ...payload, createdAt: new Date().toISOString(), emailed: false };
         store.messages.push(saved);
       } else {
@@ -124,12 +164,12 @@ export function createApi({ useMemory, store }) {
       try {
         const sent = await sendContactEmail(payload);
         emailed = true;
-        if (!useMemory && saved?._id) {
+        if (!runtime.useMemory && saved?._id) {
           await Message.findByIdAndUpdate(saved._id, {
             emailed: true,
             resendId: sent?.id || "",
           });
-        } else if (useMemory) {
+        } else if (runtime.useMemory) {
           saved.emailed = true;
         }
       } catch (mailErr) {

@@ -14,10 +14,10 @@ import { createApi, memoryStore } from "./routes/api.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 5001;
 const store = memoryStore();
-let useMemory = true;
+const runtime = { useMemory: true, cache: null, cacheAt: 0 };
 
 async function seedIfEmpty() {
-  const count = await Profile.countDocuments();
+  const count = await Profile.countDocuments().maxTimeMS(4000);
   if (count > 0) return;
   await Profile.create(seedData.profile);
   await Project.insertMany(seedData.projects);
@@ -26,26 +26,44 @@ async function seedIfEmpty() {
   console.log("Mongo collections seeded");
 }
 
+async function connectMongo(attempt = 1) {
+  if (!process.env.MONGODB_URI) {
+    console.warn("No MONGODB_URI — serving in-memory seed data.");
+    return;
+  }
+
+  try {
+    await connectDB(process.env.MONGODB_URI);
+    await seedIfEmpty();
+    runtime.useMemory = false;
+    runtime.cache = null;
+    runtime.cacheAt = 0;
+    console.log("MongoDB connected");
+  } catch (err) {
+    runtime.useMemory = true;
+    console.warn("MongoDB unavailable — serving in-memory seed data.");
+    console.warn(err.message);
+    if (attempt < 6) {
+      const delay = attempt * 8000;
+      console.warn(`Retrying MongoDB in ${delay / 1000}s (attempt ${attempt + 1}/6)`);
+      setTimeout(() => connectMongo(attempt + 1), delay);
+    }
+  }
+}
+
 async function boot() {
   const app = express();
   app.use(cors({ origin: true, credentials: true }));
   app.use(express.json({ limit: "32kb" }));
-
-  try {
-    await connectDB(process.env.MONGODB_URI);
-    useMemory = false;
-    await seedIfEmpty();
-    console.log("MongoDB connected");
-  } catch (err) {
-    useMemory = true;
-    console.warn("MongoDB unavailable — serving in-memory seed data.");
-    console.warn(err.message);
-  }
-
-  app.use("/api", createApi({ useMemory, store }));
+  app.use("/api", createApi({ runtime, store }));
 
   const clientDist = path.resolve(__dirname, "../../client/dist");
-  app.use(express.static(clientDist));
+  // Hashed build files never change, so let browsers keep them for a year.
+  app.use(
+    "/assets",
+    express.static(path.join(clientDist, "assets"), { maxAge: "1y", immutable: true })
+  );
+  app.use(express.static(clientDist, { maxAge: 0 }));
   app.get("*", (req, res, next) => {
     if (req.path.startsWith("/api")) return next();
     res.sendFile(path.join(clientDist, "index.html"), (err) => {
@@ -59,8 +77,10 @@ async function boot() {
   });
 
   app.listen(PORT, () => {
-    console.log(`API listening on http://localhost:${PORT} (${useMemory ? "memory" : "mongo"})`);
+    console.log(`API listening on http://localhost:${PORT} (memory, mongo connecting…)`);
   });
+
+  connectMongo();
 }
 
 boot();

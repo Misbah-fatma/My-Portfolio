@@ -1,30 +1,27 @@
 import InView from "../components/InView.jsx";
-import CountUp from "../components/CountUp.jsx";
 
 export default function About({ profile }) {
+  const [lead, ...rest] = profile.bio || [];
   return (
     <section className="section" id="about">
-      <div className="section-head">
-        <div>
-          <p className="index">01 — About</p>
-          <h2 className="section-title">Full-stack work,<br />from API to UI.</h2>
-        </div>
-      </div>
       <InView>
-        <div className="about-grid">
-          <div className="about-bio">
-            {profile.bio?.map((p) => (
+        <p className="section-label">a bit about me</p>
+        <p className="statement">{lead}</p>
+        <div className="about-cols">
+          <div className="about-rest">
+            {rest.map((p) => (
               <p key={p}>{p}</p>
             ))}
+            <span className="aside">(yes, that’s a lot of acronyms)</span>
           </div>
-          <div className="stats">
+          <ul className="stats">
             {profile.stats?.map((s) => (
-              <div className="stat" key={s.label}>
-                <CountUp value={s.value} />
-                <span>{s.label}</span>
-              </div>
+              <li key={s.label}>
+                <b>{s.value}</b>
+                <span className="label">{s.label}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </InView>
     </section>

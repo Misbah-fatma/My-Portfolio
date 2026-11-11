@@ -1,84 +1,42 @@
 import { useEffect, useState } from "react";
 
 const LINKS = [
-  { href: "#work", id: "work", file: "work", ext: "jsx" },
-  { href: "#about", id: "about", file: "about", ext: "md" },
-  { href: "#skills", id: "skills", file: "stack", ext: "ts" },
-  { href: "#experience", id: "experience", file: "experience", ext: "md" },
-  { href: "#contact", id: "contact", file: "contact", ext: "sh" },
+  { href: "#work", label: "Work" },
+  { href: "#about", label: "About" },
+  { href: "#skills", label: "Toolbox" },
+  { href: "#experience", label: "Experience" },
+  { href: "#contact", label: "Contact" },
 ];
 
-export default function Nav({ location }) {
+export default function Nav({ name = "misbah" }) {
   const [open, setOpen] = useState(false);
-  const [clock, setClock] = useState("");
-  const [active, setActive] = useState("top");
+  const close = () => setOpen(false);
 
   useEffect(() => {
-    const tick = () => {
-      setClock(
-        new Intl.DateTimeFormat("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-          timeZone: "Asia/Kolkata",
-        }).format(new Date())
-      );
-    };
-    tick();
-    const id = setInterval(tick, 10000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const ids = ["top", ...LINKS.map((l) => l.id)];
-    const onScroll = () => {
-      let current = "top";
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= 96) current = id;
-      }
-      setActive(current);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    document.body.classList.toggle("menu-open", open);
+    return () => document.body.classList.remove("menu-open");
+  }, [open]);
 
   return (
     <header className={`nav ${open ? "open" : ""}`}>
-      <a className="nav-status" href="#top" onClick={() => setOpen(false)}>
-        <span className="dot" />
-        <span className="nav-cmd">available</span>
+      <a className="nav-logo" href="#top" onClick={close}>
+        {name.toLowerCase()}
+        <i />
       </a>
-
-      <nav className="nav-tabs-wrap" aria-label="Primary">
-        <ul className="nav-tabs">
-          {LINKS.map((link) => (
-            <li key={link.id}>
-              <a
-                className={`nav-tab ${active === link.id ? "is-active" : ""}`}
-                href={link.href}
-                onClick={() => setOpen(false)}
-              >
-                <span className="nav-file">{link.file}</span>
-                <span className="nav-ext">.{link.ext}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
+      <nav className="nav-links" aria-label="Primary">
+        {LINKS.map((l) => (
+          <a key={l.href} href={l.href} onClick={close}>
+            {l.label}
+          </a>
+        ))}
       </nav>
-
-      <div className="nav-meta">
-        <span className="nav-chip">{location || "New Delhi"}</span>
-        <span className="nav-chip">{clock} IST</span>
-      </div>
-
       <button
         className="menu-btn"
         aria-label="Menu"
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        <span />
+        {open ? "Close" : "Menu"}
       </button>
     </header>
   );

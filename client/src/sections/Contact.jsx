@@ -61,19 +61,22 @@ export default function Contact({ email, phone, socials = [] }) {
 
   return (
     <section className="section contact" id="contact">
-      <div className="section-head">
-        <div>
-          <p className="index">06 — Contact</p>
-          <h2 className="section-title">Let’s work together.</h2>
-        </div>
-      </div>
+      <InView>
+        <p className="section-label">say hi</p>
+        <a className="mega-link" href={`mailto:${email}`}>
+          Got an idea?
+          <br />
+          Say <em>hi</em> <span>→</span>
+        </a>
+      </InView>
 
       <InView>
         <div className="contact-grid">
           <div className="contact-intro">
             <p className="contact-copy">
-              Open to full-time roles, contracts, and product work — MERN,
-              auth, and AI/ML platforms with real users.
+              I'm open to full-time roles, contracts and product work —
+              especially MERN, auth, and AI/ML platforms with real users.
+              Drop me a line and I'll get back to you within two working days.
             </p>
             <ul className="contact-ways">
               {links.map((item) => (
@@ -89,8 +92,8 @@ export default function Contact({ email, phone, socials = [] }) {
 
           {status.type === "ok" ? (
             <div className="contact-panel contact-done">
-              <p className="index">Sent</p>
-              <h3>Thanks — I have it.</h3>
+              <p className="label">Sent</p>
+              <h3>Thanks — I got it.</h3>
               <p>{status.text || "I’ll reply within two working days."}</p>
               <button
                 className="btn btn-ghost"
@@ -159,12 +162,7 @@ export default function Contact({ email, phone, socials = [] }) {
 
               <div className="form-foot">
                 <button className="btn btn-fill" type="submit" disabled={busy}>
-                  {busy ? "Sending…" : "Send message"}
-                  {!busy && (
-                    <span className="btn-arrow" aria-hidden="true">
-                      →
-                    </span>
-                  )}
+                  {busy ? "Sending… (the server may be waking up)" : "Send message"}
                 </button>
                 {status.type === "err" && (
                   <p className="form-note err">{status.text}</p>

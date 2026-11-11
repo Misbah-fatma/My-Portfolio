@@ -13,18 +13,18 @@ export default function ProjectModal({ project, onClose }) {
           <button className="modal-close" onClick={onClose} aria-label="Close">
             ×
           </button>
-          <p className="eyebrow">
+          <p className="modal-kicker">
             {project.category} — {project.year}
           </p>
           <h2>{project.title}</h2>
           <p className="lead">{project.description}</p>
           <div className="modal-cols">
             <div>
-              <h5>The brief</h5>
+              <h4>The brief</h4>
               <p>{project.problem}</p>
             </div>
             <div>
-              <h5>The outcome</h5>
+              <h4>The outcome</h4>
               <p>{project.outcome}</p>
             </div>
           </div>

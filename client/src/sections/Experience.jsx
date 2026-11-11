@@ -3,17 +3,17 @@ import InView from "../components/InView.jsx";
 export default function Experience({ experience }) {
   return (
     <section className="section" id="experience">
-      <div className="section-head">
-        <div>
-          <p className="index">04 — Experience</p>
-          <h2 className="section-title">Roles and<br />the work inside them.</h2>
+      <InView>
+        <div className="section-head">
+          <p className="section-label">career so far</p>
+          <h2 className="section-title">Where I’ve <em>worked</em></h2>
         </div>
-      </div>
+      </InView>
       <div className="timeline">
         {experience.map((job) => (
           <InView key={job.company}>
             <article className="job">
-              <div className="job-meta">
+              <div className="job-meta label">
                 {job.period}
                 <br />
                 {job.location}

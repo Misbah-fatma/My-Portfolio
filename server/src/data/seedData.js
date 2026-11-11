@@ -15,7 +15,7 @@ export const seedData = {
       "My work spans vehicle marketplaces, training and certification platforms, analytics portals, e-commerce applications, LMS platforms, and AI-enabled products — with a focus on clean UI, reliable backend systems, authentication, integrations, and scalable workflows.",
     ],
     stats: [
-      { label: "Years Experience", value: "02+" },
+      { label: "Years Experience", value: "01+" },
       { label: "Full-stack", value: "MERN" },
       { label: "Projects", value: "10+" },
       { label: "Publications", value: "02" },
