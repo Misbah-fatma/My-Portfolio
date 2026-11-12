@@ -7,8 +7,8 @@ import Footer from "./components/Footer.jsx";
 import ProjectModal from "./components/ProjectModal.jsx";
 import Intro from "./components/Intro.jsx";
 import Hero from "./sections/Hero.jsx";
-import Marquee from "./components/Marquee.jsx";
 import About from "./sections/About.jsx";
+import Research from "./sections/Research.jsx";
 import Work from "./sections/Work.jsx";
 import Skills from "./sections/Skills.jsx";
 import Experience from "./sections/Experience.jsx";
@@ -91,15 +91,12 @@ export default function App() {
       <Nav name={profile.firstName} />
       <main>
         <Hero profile={profile} projects={data.projects} armed={armed} />
-        <Marquee />
-        <About profile={profile} />
         <Work projects={data.projects} onOpen={setActive} />
         <Skills skills={data.skills} />
         <Experience experience={data.experience} />
-        <Education
-          education={profile.education}
-          publications={profile.publications}
-        />
+        <Research publications={profile.publications} />
+        <Education education={profile.education} />
+        <About profile={profile} />
         <Contact
           email={profile.email}
           phone={profile.phone}

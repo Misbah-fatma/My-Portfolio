@@ -1,4 +1,4 @@
-import ProjectArt from "./ProjectArt.jsx";
+import ProjectShot from "./ProjectShot.jsx";
 
 export default function ProjectModal({ project, onClose }) {
   if (!project) return null;
@@ -7,26 +7,31 @@ export default function ProjectModal({ project, onClose }) {
     <div className="modal" onClick={onClose} role="dialog" aria-modal="true">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-art">
-          <ProjectArt project={project} />
+          <ProjectShot project={project} />
         </div>
         <div className="modal-body">
           <button className="modal-close" onClick={onClose} aria-label="Close">
             ×
           </button>
           <p className="modal-kicker">
-            {project.category} — {project.year}
+            {project.category}
+            {project.year ? ` — ${project.year}` : ""}
           </p>
           <h2>{project.title}</h2>
-          <p className="lead">{project.description}</p>
+          <p className="lead">{project.summary}</p>
           <div className="modal-cols">
             <div>
-              <h4>The brief</h4>
+              <h4>The problem</h4>
               <p>{project.problem}</p>
             </div>
             <div>
-              <h4>The outcome</h4>
+              <h4>What I built</h4>
               <p>{project.outcome}</p>
             </div>
+          </div>
+          <div className="modal-block">
+            <h4>My contribution</h4>
+            <p>{project.description}</p>
           </div>
           <div className="chips">
             {project.stack?.map((item) => (
@@ -38,12 +43,12 @@ export default function ProjectModal({ project, onClose }) {
           <div className="modal-links">
             {project.liveUrl && (
               <a className="btn btn-fill" href={project.liveUrl} target="_blank" rel="noreferrer">
-                Live site
+                Live demo ↗
               </a>
             )}
             {project.repoUrl && (
-              <a className="btn btn-ghost" href={project.repoUrl} target="_blank" rel="noreferrer">
-                Repository
+              <a className="btn" href={project.repoUrl} target="_blank" rel="noreferrer">
+                GitHub ↗
               </a>
             )}
           </div>

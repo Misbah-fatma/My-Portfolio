@@ -5,7 +5,7 @@ export default function About({ profile }) {
   return (
     <section className="section" id="about">
       <InView>
-        <p className="section-label">a bit about me</p>
+        <p className="section-label">about me</p>
         <p className="statement">{lead}</p>
         <div className="about-cols">
           <div className="about-rest">

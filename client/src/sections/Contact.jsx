@@ -50,6 +50,7 @@ export default function Contact({ email, phone, socials = [] }) {
       href: `tel:${phone}`,
       value: formatPhone(phone),
     },
+    { label: "Resume", href: "/Misbah-Fatma-Resume.pdf", value: "Download PDF", download: true },
     ...socials
       .filter((s) => s.label !== "Email")
       .map((s) => ({
@@ -81,7 +82,7 @@ export default function Contact({ email, phone, socials = [] }) {
             <ul className="contact-ways">
               {links.map((item) => (
                 <li key={item.label}>
-                  <a className="contact-way" href={item.href}>
+                  <a className="contact-way" href={item.href} download={item.download || undefined}>
                     <span>{item.label}</span>
                     <strong>{item.value}</strong>
                   </a>

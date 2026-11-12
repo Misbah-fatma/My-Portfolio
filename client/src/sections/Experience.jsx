@@ -5,8 +5,8 @@ export default function Experience({ experience }) {
     <section className="section" id="experience">
       <InView>
         <div className="section-head">
-          <p className="section-label">career so far</p>
-          <h2 className="section-title">Where I’ve <em>worked</em></h2>
+          <p className="section-label">where I’ve worked</p>
+          <h2 className="section-title">Work <em>experience</em></h2>
         </div>
       </InView>
       <div className="timeline">

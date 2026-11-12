@@ -1,14 +1,22 @@
 const LINKS = [
   ["Top", "#top"],
-  ["Work", "#work"],
-  ["About", "#about"],
-  ["Toolbox", "#skills"],
+  ["Projects", "#work"],
+  ["Skills", "#skills"],
   ["Experience", "#experience"],
+  ["Research", "#research"],
+  ["Education", "#education"],
   ["Contact", "#contact"],
 ];
 
 export default function Footer({ name = "Misbah Fatma", email = "", socials = [] }) {
-  const items = [0, 1, 2, 3];
+  const phrases = [
+    name,
+    "Full-Stack Developer",
+    "MERN Stack",
+    "AI/ML Enthusiast",
+    "New Delhi",
+    "Open to work",
+  ];
   return (
     <footer className="footer">
       <div className="footer-top">
@@ -46,6 +54,9 @@ export default function Footer({ name = "Misbah Fatma", email = "", socials = []
               {s.label} ↗
             </a>
           ))}
+          <a href="/Misbah-Fatma-Resume.pdf" download>
+            Resume ↓
+          </a>
         </nav>
         <p className="footer-note">
           Full-stack engineer based in New Delhi, building MERN, auth and AI/ML
@@ -55,10 +66,15 @@ export default function Footer({ name = "Misbah Fatma", email = "", socials = []
 
       <div className="footer-marquee" aria-hidden="true">
         <div className="footer-track">
-          {[...items, ...items].map((n) => (
-            <span key={n}>
-              {name} <i>✦</i>
-            </span>
+          {[0, 1].map((copy) => (
+            <div className="footer-set" key={copy}>
+              {phrases.map((text, i) => (
+                <span className={i === 0 ? "t-name" : "t-role"} key={text}>
+                  {text}
+                  <i>✦</i>
+                </span>
+              ))}
+            </div>
           ))}
         </div>
       </div>

@@ -1,12 +1,14 @@
 import InView from "../components/InView.jsx";
 
-export default function Education({ education = [], publications = [] }) {
+export default function Education({ education = [] }) {
   return (
     <section className="section" id="education">
       <InView>
         <div className="section-head">
-          <p className="section-label">school &amp; papers</p>
-          <h2 className="section-title">What I <em>studied</em> &amp; wrote</h2>
+          <p className="section-label">school</p>
+          <h2 className="section-title">
+            Where I <em>studied</em>
+          </h2>
         </div>
       </InView>
       <InView>
@@ -22,16 +24,6 @@ export default function Education({ education = [], publications = [] }) {
                 </p>
               </div>
               <span className="label news-tag">Education</span>
-            </li>
-          ))}
-          {publications.map((pub) => (
-            <li className="news-item" key={pub.title}>
-              <span className="news-date">{pub.date || "—"}</span>
-              <div>
-                <h3>{pub.title}</h3>
-                <p>{pub.venue}</p>
-              </div>
-              <span className="label news-tag">Publication</span>
             </li>
           ))}
         </ul>

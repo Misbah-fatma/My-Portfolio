@@ -12,9 +12,12 @@ export default function Skills({ skills }) {
       <InView>
         <div className="section-head">
           <p className="section-label">toolbox</p>
-          <h2 className="section-title">What I <em>work with</em></h2>
+          <h2 className="section-title">Technical <em>skills</em></h2>
           <p className="label">{total} tools</p>
         </div>
+        <p className="section-note">
+          No percentage bars — just the tools I’m happy to talk about in an interview.
+        </p>
       </InView>
 
       <InView>

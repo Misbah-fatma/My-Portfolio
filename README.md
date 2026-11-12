@@ -114,6 +114,18 @@ On first boot with an empty database, the API also seeds automatically from `ser
 
 Edit that file to update profile, projects, skills, or experience, then run `npm run seed` again.
 
+## Your photo, screenshots and resume
+
+Drop these into `client/public/`, rebuild, and the site picks them up automatically:
+
+| File | What it does |
+| --- | --- |
+| `profile.jpg` | Hero photo (4:5 portrait works best). Without it, the hero shows the 3D scene instead. |
+| `projects/<slug>.png` | Real screenshot for a project card and its case study (e.g. `projects/curalynx.png`). Without it, the artwork is used. Slugs are in `server/src/data/seedData.js`. |
+| `Misbah-Fatma-Resume.pdf` | The "Download Resume" file. A starter version generated from the portfolio data is included — replace it with your own. |
+
+After editing `server/src/data/seedData.js`, copy it to `client/src/data/portfolio.js` and run `npm run seed` in `server/` so the database matches.
+
 ## Contact form
 
 `POST /api/contact` stores the message in MongoDB and sends email via Resend.

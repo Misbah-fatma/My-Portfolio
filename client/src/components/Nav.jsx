@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 
 const LINKS = [
-  { href: "#work", label: "Work" },
-  { href: "#about", label: "About" },
-  { href: "#skills", label: "Toolbox" },
+  { href: "#work", label: "Projects" },
+  { href: "#skills", label: "Skills" },
   { href: "#experience", label: "Experience" },
+  { href: "#research", label: "Research" },
+  { href: "#education", label: "Education" },
   { href: "#contact", label: "Contact" },
 ];
 
@@ -29,6 +30,9 @@ export default function Nav({ name = "misbah" }) {
             {l.label}
           </a>
         ))}
+        <a className="nav-resume" href="/Misbah-Fatma-Resume.pdf" download onClick={close}>
+          Resume ↓
+        </a>
       </nav>
       <button
         className="menu-btn"

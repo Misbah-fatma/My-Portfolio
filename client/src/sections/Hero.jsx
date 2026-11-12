@@ -1,78 +1,92 @@
 import { useEffect, useState } from "react";
 import Hero3D from "../components/Hero3D.jsx";
 
-const ROLES = ["Full-Stack Engineer", "MERN Developer", "API & auth specialist"];
-const PILLS = ["React.js", "Node.js", "MongoDB", "Express", "JWT / RBAC", "Python", "NLP"];
+const PHOTO = "/profile.jpg"; // drop your photo at client/public/profile.jpg
+const RESUME = "/Misbah-Fatma-Resume.pdf";
 
-function RoleCycle() {
-  const [i, setI] = useState(0);
+function usePhoto() {
+  const [ok, setOk] = useState(false);
   useEffect(() => {
-    const id = setInterval(() => setI((n) => (n + 1) % ROLES.length), 2600);
-    return () => clearInterval(id);
+    const img = new Image();
+    img.onload = () => setOk(true);
+    img.src = PHOTO;
   }, []);
-  return (
-    <span className="role-cycle" key={i}>
-      {ROLES[i]}
-    </span>
-  );
+  return ok;
 }
 
 export default function Hero({ profile, projects = [], armed = true }) {
-  const names = [profile.firstName, profile.lastName];
+  const hasPhoto = usePhoto();
+  const link = (label) => profile.socials?.find((s) => s.label === label)?.href;
+  const socials = [
+    ["GitHub", link("GitHub")],
+    ["LinkedIn", link("LinkedIn")],
+    ["Email", `mailto:${profile.email}`],
+  ].filter(([, href]) => href);
+
+  const step = (i) => ({ "--i": i });
 
   return (
     <section className={`hero ${armed ? "armed" : ""}`} id="top">
       <div className="glow glow-a" />
       <div className="hero-grid" aria-hidden="true" />
-      <Hero3D projects={projects} armed={armed} />
 
-      <div className="hero-top">
-        <p className="label">
-          <span className="dot" />
-          {"// "}
-          {profile.location} · {profile.availability}
-        </p>
-      </div>
+      <div className="hero-split">
+        <div className="hero-text">
+          <p className="hero-hello hero-anim" style={step(0)}>
+            Hello, I’m
+          </p>
 
-      <div className="hero-main">
-        <h1 className="hero-title" aria-label={profile.name}>
-          {names.map((word, i) => (
-            <span className="line" key={word}>
-              <span style={{ animationDelay: `${0.15 + i * 0.16}s` }}>{word}</span>
-            </span>
-          ))}
-        </h1>
+          <h1 className="hero-title hero-anim" style={step(1)} aria-label={profile.name}>
+            <span>{profile.firstName}</span>
+            <em>{profile.lastName}</em>
+          </h1>
 
-        <p className="hero-role">
-          <span className="prompt">❯</span>
-          <RoleCycle />
-        </p>
-      </div>
+          <p className="hero-role hero-anim" style={step(2)}>
+            Full-Stack Developer <i>|</i> MERN Stack <i>|</i> AI/ML Enthusiast
+          </p>
 
-      <div className="hero-foot">
-        <p className="hero-copy">{profile.tagline}</p>
-        <div className="hero-side">
-          <ul className="hero-pills">
-            {PILLS.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
-          <div className="hero-actions">
+          <p className="hero-copy hero-anim" style={step(3)}>
+            I’m a full-stack developer based in {profile.location?.split(",")[0]}. I build web
+            apps with React, Node.js and MongoDB, and I enjoy working on the AI/ML side too.
+          </p>
+
+          <div className="hero-actions hero-anim" style={step(4)}>
             <a className="btn btn-fill" href="#work">
-              View selected work →
+              View Projects ↗
             </a>
-            <a className="btn" href="#contact">
-              Get in touch →
+            <a className="btn" href={RESUME} download>
+              Download Resume ↓
             </a>
           </div>
-        </div>
-      </div>
 
-      <div className="hero-statusbar label">
-        <span>fn engineer()</span>
-        <span>{profile.role}</span>
-        <span>{profile.location}</span>
-        <span>React · Node · Mongo · Python</span>
+          <p className="hero-links hero-anim" style={step(5)}>
+            {socials.map(([label, href], i) => (
+              <span key={label}>
+                <a
+                  href={href}
+                  target={href.startsWith("mailto") ? undefined : "_blank"}
+                  rel="noreferrer"
+                >
+                  {label}
+                </a>
+                {i < socials.length - 1 && <b>·</b>}
+              </span>
+            ))}
+          </p>
+        </div>
+
+        <div className="hero-visual hero-anim" style={step(3)}>
+          {hasPhoto ? (
+            <figure className="photo">
+              <img src={PHOTO} alt={profile.name} />
+              <span className="photo-tag t1">React</span>
+              <span className="photo-tag t2">Node.js</span>
+              <span className="photo-tag t3">MongoDB</span>
+            </figure>
+          ) : (
+            <Hero3D projects={projects} armed={armed} />
+          )}
+        </div>
       </div>
     </section>
   );
